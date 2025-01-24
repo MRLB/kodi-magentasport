@@ -809,8 +809,11 @@ def getvideo2(videoid, isPay):
     try:
         response = urllib.request.urlopen(stream_config_url +'?videoid='+ str(videoid)).read()
         jsonResultConfig = json.loads(response)
-
-        licenseAcquisitionUrl = jsonResultConfig['drmData']['licenseType']['widevine']['licenseAcquisitionUrl']
+        drmProvider = (jsonResultConfig['drmData']['provider']).lower()
+        if (drmProvider == 'verimatrix'):
+            licenseAcquisitionUrl = jsonResultConfig['drmData']['licenseType']['widevine']['licenseAcquisitionUrlStreamKeeper']
+        else:
+            licenseAcquisitionUrl = jsonResultConfig['drmData']['licenseType']['widevine']['licenseAcquisitionUrl']
         imageURL = jsonResultConfig['image']
         xbmc.log('licenseAcquisitionUrl: ' + licenseAcquisitionUrl)
         xbmc.log('Config: ' + str(jsonResultConfig))
@@ -824,7 +827,10 @@ def getvideo2(videoid, isPay):
     drmToken = ''
     drmPixel = ''
     try:
-        drmToken = jsonResult['data']['drmToken']
+        if (drmProvider == 'verimatrix'):
+            drmToken = jsonResult['data']['multiDrm']['token']
+        else:
+            drmToken = jsonResult['data']['drmToken']
         drmPixel = jsonResult['data']['drmPixel']
     except:
         xbmc.log('No drmToken')
