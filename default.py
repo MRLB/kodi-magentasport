@@ -116,7 +116,7 @@ def prettydate(dt, addtime=True):
     if addtime:
         return dt.strftime(xbmc.getRegion("datelong") + ", " + xbmc.getRegion("time").replace(":%S", "").replace("%H%H", "%H"))
     else:
-        return dt.strftime(xbmc.getRegion("datelong"))
+        return dt.strftime("%A, %d. %B %Y")
 
 def prettytime(dt, addtime=True):
     dt = dt + utc_offset()
@@ -470,6 +470,12 @@ def getMain():
     li = xbmcgui.ListItem('[B]Sportdigital FUSSBALL[/B] (24/7-Programm): ' + EPGinfosportdigitalNow)
     li.setProperty('IsPlayable', 'true')
     li.setInfo('video', {'plot': EPGinfosportdigital})
+    xbmcplugin.addDirectoryItem(handle=_addon_handler, url=url, listitem=li)
+
+    url = build_url({'mode': 'video', 'videoid': '383061', 'isPay': True})
+    li = xbmcgui.ListItem('[B]Sportdigital1+[/B] (24/7-Programm): ' + EPGinfosportdigital1PlusNow)
+    li.setProperty('IsPlayable', 'true')
+    li.setInfo('video', {'plot': EPGinfosportdigital1Plus})
     xbmcplugin.addDirectoryItem(handle=_addon_handler, url=url, listitem=li)
 
     title = "--------------------------------------------------------"
@@ -943,11 +949,16 @@ def autentificationProcessMagentaTVfuerEPG():
     global EPGinfoMSSport
     global EPGinfosportdigitalNow
     global EPGinfosportdigital
+    global EPGinfosportdigital1PlusNow
+    global EPGinfosportdigital1Plus
+
 
     EPGinfoMSSportNow = 'Ohne EPG'
     EPGinfoMSSport = ''
     EPGinfosportdigitalNow = 'Ohne EPG'
     EPGinfosportdigital = ''
+    EPGinfosportdigital1PlusNow = 'Ohne EPG'
+    EPGinfosportdigital1Plus = ''
 
     try:
         meAutentificationProcess = requests.post(url=urlAutentification, headers=headerAutentifcation, data=json.dumps(dataAutentification))
@@ -1000,7 +1011,7 @@ def autentificationProcessMagentaTVfuerEPG():
             j = j + 1
         #xbmc.log("EPG: "+EPGinfoMSSport)
 
-        #sportdigital
+        #sportdigital fussball
         dataEPG = {
             'count': -1,
             # 'isFillProgram': 1,
@@ -1026,6 +1037,36 @@ def autentificationProcessMagentaTVfuerEPG():
                              meEPG['playbilllist'][j]['name'] + ' (' + meEPG['playbilllist'][j]['genres'] + ')\n'
             j = j + 1
         #xbmc.log("EPG: " + EPGinfosportdigital)
+
+        # sportdigital1+
+        dataEPG = {
+            'count': -1,
+            # 'isFillProgram': 1,
+            'offset': 0,
+            'properties': [{'include': 'endtime,externalContentCode,genres,id,name,starttime', 'name': 'playbill'}],
+            # 'type': 2,
+            # 'begintime': '20210514164801',
+            'channelid': '44',
+            # 'endtime': '20210515000000'
+        }
+
+        meEPG = requests.post(url=urlEPG, headers=headerLiveTVListe, data=json.dumps(dataEPG))
+        meEPG = meEPG.json()
+
+        j = 0
+        EPGinfosportdigital1PlusNow = meEPG['playbilllist'][j]['name'] + ' (' + meEPG['playbilllist'][j][
+            'genres'] + ') (bis ' + \
+                                 meEPG['playbilllist'][j]['endtime'][11:16] + ')'
+
+        while j < 9:
+            EPGinfosportdigital1Plus = EPGinfosportdigital1Plus + meEPG['playbilllist'][j]['starttime'][11:16] + '-' + \
+                                  meEPG['playbilllist'][j][
+                                      'endtime'][
+                                  11:16] + ': ' + \
+                                  meEPG['playbilllist'][j]['name'] + ' (' + meEPG['playbilllist'][j][
+                                      'genres'] + ')\n'
+            j = j + 1
+        # xbmc.log("EPG: " + EPGinfosportdigital1Plus)
 
 
     except:
