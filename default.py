@@ -70,7 +70,7 @@ api_salt = '55!#r%Rn3%xn?U?PX*k'
 accesstoken = ''
 login_method = ''
 api_version = 0
-useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0"
+useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0"
 cook = []
 ccc = 0
 code_verifier='vnwceqbocuiqeouinjsi249sm2la1o'.encode('utf-8')
@@ -138,6 +138,7 @@ def get_jwt(username, password, videoID, payFree):
             response = opener(req)
             cookies = response.info().get_all('Set-Cookie')
             html = str(response.read())
+            xbmc.log('html: '+html)
             pos = 0
             pos = html.find('name="xsrf')
             xsrf_name = html[pos + 6:pos + 33]
@@ -145,11 +146,15 @@ def get_jwt(username, password, videoID, payFree):
             xsrf_value = html[pos + 7:pos + 29]
             pos = html.find('name="tid" value="')
             tid = html[pos + 18:pos + 54]
-
+            xbmc.log('xsrf_value: '+xsrf_value)
+            xbmc.log('tid: '+tid)
             referer = response.geturl()
 
-            data = {xsrf_name: xsrf_value, 'tid': tid, 'x-show-cancel': 'false', 'bdata': '', 'pw_usr': username, 'pw_submit': '',
-                    'hidden_pwd': ''}
+            #data = {xsrf_name: xsrf_value, 'tid': tid, 'x-show-cancel': 'false', 'bdata': '', 'pw_usr': username, 'pw_submit': '',
+            #        'hidden_pwd': ''}
+
+            data = {xsrf_name: xsrf_value, 'tid': tid, 'webauthn_supported': 'false', 'pkc': '', 'pw_usr': username}
+
             post = urlparse.urlencode(data).encode('utf-8')
             req = urllib.request.Request(oauth_factorx_url, post)
             req.add_header('Cookie', ';'.join(cookies))
@@ -167,8 +172,9 @@ def get_jwt(username, password, videoID, payFree):
             pos = html.find('name="tid" value="')
             tid = html[pos + 18:pos + 54]
 
-            data = {xsrf_name: xsrf_value, 'tid': tid, 'bdata': '', 'hidden_usr': '', 'pw_submit': '',
+            data = {xsrf_name: xsrf_value, 'tid': tid, 'hidden_usr': username,
                     'pw_pwd': password, 'persist_session_displayed': '1'}
+
             post = urlparse.urlencode(data).encode('utf-8')
             req = urllib.request.Request(oauth_factorx_url, post)
 
@@ -217,8 +223,9 @@ def get_jwt(username, password, videoID, payFree):
             pos = html.find('name="tid" value="')
             tid = html[pos + 18:pos + 54]
 
-            data = {xsrf_name: xsrf_value, 'tid': tid, 'x-show-cancel': 'true', 'bdata': '', 'pw_usr': username,
-                    'pw_submit': '', 'hidden_pwd': ''}
+            data = {xsrf_name: xsrf_value, 'tid': tid, 'webauthn_supported': 'false', 'pkc': '', 'pw_usr': username}
+            #data = {xsrf_name: xsrf_value, 'tid': tid, 'x-show-cancel': 'true', 'bdata': '', 'pw_usr': username,
+            #        'pw_submit': '', 'hidden_pwd': ''}
             post = urlparse.urlencode(data).encode('utf-8')
             req = urllib.request.Request(oauth_factorx_url, post)
             req.add_header('Cookie', ';'.join(cookies))
@@ -237,8 +244,10 @@ def get_jwt(username, password, videoID, payFree):
             pos = html.find('name="tid" value="')
             tid = html[pos + 18:pos + 54]
 
-            data = {xsrf_name: xsrf_value, 'tid': tid, 'bdata': '', 'hidden_usr': '', 'pw_submit': '',
-                    'pw_pwd': password}
+            #data = {xsrf_name: xsrf_value, 'tid': tid, 'bdata': '', 'hidden_usr': '', 'pw_submit': '',
+            #        'pw_pwd': password}
+            data = {xsrf_name: xsrf_value, 'tid': tid, 'hidden_usr': username,
+                    'pw_pwd': password, 'persist_session_displayed': '1'}
             post = urlparse.urlencode(data).encode('utf-8')
             opener = urllib.request.build_opener(RedirectHandler()).open
             req = urllib.request.Request(oauth_factorx_url, post)

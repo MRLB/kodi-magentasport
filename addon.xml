@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.telekomsport" name="Magenta Sport" version="2.3.3+matrix.3" provider-name="hubsif">
+<addon id="plugin.video.telekomsport" name="Magenta Sport" version="2.3.3+matrix.4" provider-name="hubsif">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
+		<import addon="script.module.inputstreamhelper"/>
 		<import addon="script.module.requests"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
